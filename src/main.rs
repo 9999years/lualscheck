@@ -296,6 +296,13 @@ impl<'a> Display for PathDiagnostic<'a> {
 
         if let Some(related_information) = &self.diagnostic.related_information {
             for information in related_information {
+                if information.location.range == self.diagnostic.range
+                    && (information.message.is_empty()
+                        || information.message == self.diagnostic.message)
+                {
+                    // Ignore redundant related information.
+                    continue;
+                }
                 write!(f, "    • ")?;
                 self.write_location(f, &information.location)?;
                 if !information.message.is_empty() {
