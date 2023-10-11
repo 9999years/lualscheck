@@ -347,7 +347,8 @@ fn write_range(f: &mut Formatter<'_>, range: Range) -> std::fmt::Result {
 }
 
 fn write_position(f: &mut Formatter<'_>, position: Position) -> std::fmt::Result {
-    write!(f, "{}:{}", position.line, position.character)
+    // Lines and characters are zero-indexed.
+    write!(f, "{}:{}", position.line + 1, position.character + 1)
 }
 
 fn to_relative_path(url: &Url, cwd: &Path) -> miette::Result<PathBuf> {
