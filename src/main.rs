@@ -113,7 +113,7 @@ fn main() -> miette::Result<()> {
 
     let mut cmd = Command::new(opts.lua_language_server);
     cmd.arg("--check")
-        .arg(&opts.project)
+        .arg(&*project_absolute)
         .arg("--checklevel")
         .arg("Information")
         .stdout(Stdio::piped());
