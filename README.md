@@ -19,3 +19,14 @@ error on.
 
 [luals]: https://github.com/LuaLS/lua-language-server
 [check_out_path]: https://github.com/LuaLS/lua-language-server/pull/2364
+
+
+```ShellSession
+$ lualscheck
+Diagnosis complete, 10 problems found, see /Users/wiggles/.cache/lua-language-server/log/check.json
+
+lua/broot/init.lua:67:27 [miss-symbol]
+    error: Missed symbol `}`.
+
+Error:   × lua-language-server found 1 problems
+```
