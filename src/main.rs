@@ -296,9 +296,11 @@ impl<'a> Display for PathDiagnostic<'a> {
 
         if let Some(related_information) = &self.diagnostic.related_information {
             for information in related_information {
-                write!(f, "    ")?;
+                write!(f, "    • ")?;
                 self.write_location(f, &information.location)?;
-                writeln!(f, ": {}", information.message)?;
+                if !information.message.is_empty() {
+                    writeln!(f, ": {}", information.message)?;
+                }
             }
         }
 
