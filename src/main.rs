@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::collections::HashSet;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::io::Read;
@@ -176,6 +177,11 @@ fn main() -> miette::Result<()> {
         miette!("Last line of lua-language-server output doesn't contain any data: {last_line:?}")
     })?;
 
+    if last_token == "found" {
+        // "No problems found"
+        return Ok(());
+    }
+
     let path = Path::new(last_token);
 
     if !path.exists() {
@@ -191,6 +197,8 @@ fn main() -> miette::Result<()> {
     )
     .into_diagnostic()
     .wrap_err_with(|| format!("Failed to deserialize diagnostics file: {path:?}"))?;
+
+    let mut seen_diagnostics = HashSet::new();
 
     let mut found_diagnostics = 0;
 
@@ -218,6 +226,18 @@ fn main() -> miette::Result<()> {
             {
                 continue;
             }
+
+            let path_diagnostic = PathDiagnostic {
+                cwd: &project_absolute,
+                path: &relative_path,
+                diagnostic,
+            };
+            let formatted = path_diagnostic.to_string();
+            if seen_diagnostics.contains(&formatted) {
+                // Don't print duplicate diagnostics.
+                continue;
+            }
+
             if diagnostic
                 .severity
                 .map(|severity| severity <= fail)
@@ -226,12 +246,8 @@ fn main() -> miette::Result<()> {
                 found_diagnostics += 1;
             }
 
-            let path_diagnostic = PathDiagnostic {
-                cwd: &project_absolute,
-                path: &relative_path,
-                diagnostic,
-            };
-            write!(std::io::stdout(), "\n{path_diagnostic}").into_diagnostic()?;
+            write!(std::io::stdout(), "\n{formatted}").into_diagnostic()?;
+            seen_diagnostics.insert(formatted);
         }
     }
 
